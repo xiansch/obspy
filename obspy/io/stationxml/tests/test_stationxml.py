@@ -634,6 +634,19 @@ class StationXMLTestCase(unittest.TestCase):
         self.assertEqual(len(inv.networks), 1)
         self.assertEqual(inv[0].code, "XX")
 
+    def test_stationxml_with_custom_tags(self):
+        """
+        Test reading/writing StationXML with additional custom namespace tags.
+        """
+        filename = os.path.join(
+            self.data_dir, "IRIS_single_channel_with_response_custom_tags.xml")
+        # don't explicitely specify format
+        inv = obspy.read_inventory(filename)
+        self.assertTrue(hasattr(inv, "extra"))
+        self.assertTrue(hasattr(inv[0], "extra"))
+        self.assertTrue(hasattr(inv[0][0], "extra"))
+        self.assertTrue(hasattr(inv[0][0][0], "extra"))
+
 
 def suite():
     return unittest.makeSuite(StationXMLTestCase, "test")

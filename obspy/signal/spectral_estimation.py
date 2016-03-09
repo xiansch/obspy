@@ -587,6 +587,17 @@ class PPSD(object):
         return list(map(UTCDateTime, self._times_processed))
 
     @property
+    def psd_values(self):
+        """
+        Returns all individual smoothed psd arrays as a list. The corresponding
+        times can be accessed as :attr:`PPSD.times_processed`, the
+        corresponding central periods in seconds (central frequencies in Hertz)
+        can be accessed as :attr:`PPSD.psd_periods`
+        (:attr:`PPSD.psd_frequencies`).
+        """
+        return self._binned_psds
+
+    @property
     def times_processed(self):
         return list(map(UTCDateTime, self._times_processed))
 

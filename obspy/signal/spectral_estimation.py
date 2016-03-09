@@ -1490,12 +1490,16 @@ class PPSD(object):
             warnings.warn(msg)
 
     def plot_temporal(self, period, color=None, legend=True, grid=True,
-                      filename=None, show=True):
+                      filename=None, show=True, **temporal_restrictions):
         """
         Plot the evolution of PSD value of one (or more) period bins over time.
 
         If a filename is specified the plot is saved to this file, otherwise
         a matplotlib figure is returned or shown.
+
+        Additional keyword arguments are passed on to :meth:`_stack_selection`
+        to restrict at which times PSD values are selected (e.g. to compare
+        temporal evolution during a specific time span of each day).
 
         :type period: float (or list thereof)
         :param period: Period of PSD values to plot. The period bin with the
@@ -1542,6 +1546,11 @@ class PPSD(object):
         period_bin_centers = self.period_bin_centers
         times = date2num([t.datetime for t in self.times_processed])
 
+        if temporal_restrictions:
+            mask = ~self._stack_selection(**temporal_restrictions)
+        else:
+            mask = None
+
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
@@ -1559,6 +1568,8 @@ class PPSD(object):
             else:
                 label = "{:.2g}-{:.2g} [s]".format(period_min, period_max)
             psd_values = [psd[index] for psd in self.psd_values]
+            if mask is not None:
+                psd_values = np.ma.masked_array(psd_values, mask=mask)
             ax.plot(times, psd_values, color=color, label=label)
 
         if legend:

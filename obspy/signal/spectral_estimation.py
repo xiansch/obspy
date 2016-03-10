@@ -29,7 +29,6 @@ import math
 import os
 import pickle
 import warnings
-from dateutil.rrule import MINUTELY, SECONDLY
 
 import numpy as np
 from matplotlib import mlab
@@ -46,7 +45,7 @@ from obspy.core.util import get_matplotlib_version, AttribDict
 from obspy.core.util.decorator import deprecated_keywords, deprecated
 from obspy.core.util.deprecation_helpers import ObsPyDeprecationWarning
 from obspy.imaging.cm import obspy_sequential
-from obspy.imaging.util import ObsPyAutoDateFormatter
+from obspy.imaging.util import _set_xaxis_obspy_dates
 from obspy.io.xseed import Parser
 from obspy.signal.invsim import cosine_taper
 from obspy.signal.util import prev_pow_2
@@ -1511,7 +1510,7 @@ class PPSD(object):
         :param show: Enable/disable immediately showing the plot.
         """
         import matplotlib.pyplot as plt
-        from matplotlib.dates import AutoDateLocator, date2num
+        from matplotlib.dates import date2num
 
         if cmap is None:
             cmap = obspy_sequential
@@ -1542,15 +1541,9 @@ class PPSD(object):
         ax.set_ylabel('Period [s]')
 
         fig.autofmt_xdate()
-        ax.xaxis_date()
-        ax.set_yscale("log")
-        locator = AutoDateLocator(minticks=3, maxticks=6)
-        locator.intervald[MINUTELY] = [1, 2, 5, 10, 15, 30]
-        locator.intervald[SECONDLY] = [1, 2, 5, 10, 15, 30]
-        ax.xaxis.set_major_formatter(ObsPyAutoDateFormatter(locator))
-        ax.xaxis.set_major_locator(locator)
-        plt.setp(ax.get_xticklabels(), fontsize='small')
+        _set_xaxis_obspy_dates(ax)
 
+        ax.set_yscale("log")
         ax.set_xlim(xedges[0], xedges[-1])
         ax.set_ylim(yedges[0], yedges[-1])
 
@@ -1602,7 +1595,7 @@ class PPSD(object):
         :param show: Enable/disable immediately showing the plot.
         """
         import matplotlib.pyplot as plt
-        from matplotlib.dates import AutoDateLocator, date2num
+        from matplotlib.dates import date2num
 
         try:
             len(period)
@@ -1661,13 +1654,7 @@ class PPSD(object):
             ax.set_ylabel('Amplitude [dB]')
 
         fig.autofmt_xdate()
-        ax.xaxis_date()
-        locator = AutoDateLocator(minticks=3, maxticks=6)
-        locator.intervald[MINUTELY] = [1, 2, 5, 10, 15, 30]
-        locator.intervald[SECONDLY] = [1, 2, 5, 10, 15, 30]
-        ax.xaxis.set_major_formatter(ObsPyAutoDateFormatter(locator))
-        ax.xaxis.set_major_locator(locator)
-        plt.setp(ax.get_xticklabels(), fontsize='small')
+        _set_xaxis_obspy_dates(ax)
 
         if filename is not None:
             plt.savefig(filename)

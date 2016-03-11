@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from future.builtins import *  # NOQA
 
+import inspect
 import os
 import pickle
 import unittest
@@ -11,7 +12,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from obspy import Stream, Trace, UTCDateTime, read
+from obspy import Stream, Trace, UTCDateTime, read, read_inventory
 from obspy.core.compatibility import mock
 from obspy.core.stream import _is_pickle, _read_pickle, _write_pickle
 from obspy.core.util.attribdict import AttribDict
@@ -57,6 +58,9 @@ class StreamTestCase(unittest.TestCase):
             data=np.random.randint(0, 1000, 12000).astype(np.float64),
             header=header)
         self.gse2_stream = Stream(traces=[trace])
+        # Most generic way to get the actual data directory.
+        self.data_dir = os.path.join(os.path.dirname(os.path.abspath(
+            inspect.getfile(inspect.currentframe()))), "data")
 
     @staticmethod
     def __remove_processing(st):
@@ -2408,6 +2412,118 @@ class StreamTestCase(unittest.TestCase):
         self.assertEqual(patch.call_count, 8)
         for arg in patch.call_args_list:
             self.assertFalse(arg[1]["nearest_sample"])
+
+    def test_rotate_to_zne(self):
+        """
+        Tests rotating all traces in stream to ZNE given an inventory object.
+        """
+        st = read("/path/to/ffbx_unrotated_gaps.mseed", format="MSEED")
+        inv = read_inventory("/path/to/ffbx.stationxml", format="STATIONXML")
+        st.rotate_to_zne(inv)
+        # do some checks on results
+        self.assertEqual(len(st), 30)
+        # compare data
+        expected_data = np.load(
+            os.path.join(self.data_dir, "ffbx_rotated.npz")).items()[0][1]
+        for tr, expected_data_ in zip(st, expected_data):
+            np.testing.assert_allclose(tr.data, expected_data_, rtol=1e-7)
+        # compare stats
+        expected_stats = [
+            {'channel': 'HHZ', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB1'},
+            {'channel': 'HHN', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB1'},
+            {'channel': 'HHE', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB1'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 13,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:45.725000Z", 'station': 'FFB1'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 13,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:45.725000Z", 'station': 'FFB1'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 13,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:45.725000Z", 'station': 'FFB1'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 3,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.475000Z", 'station': 'FFB1'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 3,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.475000Z", 'station': 'FFB1'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 3,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.475000Z", 'station': 'FFB1'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 17,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.025000Z", 'station': 'FFB1'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 17,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.025000Z", 'station': 'FFB1'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 17,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.025000Z", 'station': 'FFB1'},
+            {'channel': 'HHZ', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB2'},
+            {'channel': 'HHN', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB2'},
+            {'channel': 'HHE', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB2'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 61,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.525000Z", 'station': 'FFB2'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 61,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.525000Z", 'station': 'FFB2'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 61,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.525000Z", 'station': 'FFB2'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 3,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.425000Z", 'station': 'FFB2'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 3,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.425000Z", 'station': 'FFB2'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 3,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.425000Z", 'station': 'FFB2'},
+            {'channel': 'HHZ', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB3'},
+            {'channel': 'HHN', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB3'},
+            {'channel': 'HHE', 'location': '', 'network': 'BW', 'npts': 401,
+             'sampling_rate': 200.0, 'starttime':
+             "2016-03-11T11:34:44.015000Z", 'station': 'FFB3'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 62,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.475000Z", 'station': 'FFB3'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 62,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.475000Z", 'station': 'FFB3'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 62,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.475000Z", 'station': 'FFB3'},
+            {'channel': 'BHZ', 'location': '', 'network': 'BW', 'npts': 17,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.025000Z", 'station': 'FFB3'},
+            {'channel': 'BHN', 'location': '', 'network': 'BW', 'npts': 17,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.025000Z", 'station': 'FFB3'},
+            {'channel': 'BHE', 'location': '', 'network': 'BW', 'npts': 17,
+             'sampling_rate': 40.0, 'starttime':
+             "2016-03-11T11:34:44.025000Z", 'station': 'FFB3'}]
+        for expected, tr in zip(expected_stats, st):
+            for k, v in expected.items():
+                if k == "starttime":
+                    v = UTCDateTime(v)
+                self.assertEqual(tr.stats[k], v)
 
 
 def suite():

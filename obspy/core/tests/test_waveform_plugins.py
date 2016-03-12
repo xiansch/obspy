@@ -165,6 +165,8 @@ class WaveformPluginsTestCase(unittest.TestCase):
                          '2011-09-06-1311-36S.A1032_001BH_Z_MSEED'),
             os.path.join('core', 'tests', 'data',
                          'IU_ULN_00_LH1_2015-07-18T02.mseed'),
+            os.path.join('core', 'tests', 'data',
+                         'ffbx_unrotated_gaps.mseed'),
         ]
         formats_ep = _get_default_eps('obspy.plugin.waveform', 'isFormat')
         formats = list(formats_ep.values())

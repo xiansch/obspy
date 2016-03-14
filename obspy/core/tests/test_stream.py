@@ -2514,7 +2514,7 @@ class StreamTestCase(unittest.TestCase):
              "2016-03-11T11:34:44.025000Z", 'station': 'FFB3'}]
         for metadata in (inv, parser):
             st = read("/path/to/ffbx_unrotated_gaps.mseed", format="MSEED")
-            st.rotate_to_zne(metadata)
+            st.rotate("->ZNE", metadata=metadata)
             # do some checks on results
             self.assertEqual(len(st), 30)
             # compare data

@@ -560,6 +560,11 @@ def _unpack_steim_1(data_string, npts, swapflag=0, verbose=0):
     diffbuff = np.empty(npts, dtype=np.int32)
     x0 = C.c_int32()
     xn = C.c_int32()
+
+    # If its an array, directly pass the pointer.
+    if hasattr(dbuf, "ctypes"):
+        dbuf = dbuf.ctypes.data
+
     nsamples = clibmseed.msr_unpack_steim1(
         C.cast(dbuf, C.POINTER(FRAME)), datasize,
         samplecnt, samplecnt, datasamples, diffbuff,
@@ -585,6 +590,11 @@ def _unpack_steim_2(data_string, npts, swapflag=0, verbose=0):
     diffbuff = np.empty(npts, dtype=np.int32)
     x0 = C.c_int32()
     xn = C.c_int32()
+
+    # If its an array, directly pass the pointer.
+    if hasattr(dbuf, "ctypes"):
+        dbuf = dbuf.ctypes.data
+
     nsamples = clibmseed.msr_unpack_steim2(
         C.cast(dbuf, C.POINTER(FRAME)), datasize,
         samplecnt, samplecnt, datasamples, diffbuff,

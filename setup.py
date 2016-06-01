@@ -91,13 +91,13 @@ KEYWORDS = [
     'instrument correction', 'instrument simulation', 'IRIS', 'kinemetrics',
     'KML', 'magnitude', 'MiniSEED', 'misfit', 'mopad', 'MSEED', 'NDK', 'NERA',
     'NERIES', 'NonLinLoc', 'NLLOC', 'observatory', 'ORFEUS', 'PDAS', 'picker',
-    'processing', 'PQLX', 'Q', 'real time', 'realtime', 'RESP',
-    'response file', 'RT', 'SAC', 'sc3ml', 'SDS', 'SEED', 'SeedLink', 'SEG-2', 'SEG Y',
-    'SEISAN', 'SeisHub', 'Seismic Handler', 'seismology', 'seismogram',
-    'seismograms', 'shapefile', 'signal', 'slink', 'spectrogram', 'StationXML',
-    'taper', 'taup', 'travel time', 'trigger', 'VERCE', 'WAV', 'waveform',
-    'WaveServer', 'WaveServerV', 'WebDC', 'web service', 'Winston', 'XML-SEED',
-    'XSEED']
+    'processing', 'PQLX', 'Q', 'real time', 'realtime', 'REFTEK', 'REFTEK130',
+    'RESP', 'response file', 'RT', 'SAC', 'sc3ml', 'SDS', 'SEED', 'SeedLink',
+    'SEG-2', 'SEG Y', 'SEISAN', 'SeisHub', 'Seismic Handler', 'seismology',
+    'seismogram', 'seismograms', 'shapefile', 'signal', 'slink', 'spectrogram',
+    'StationXML', 'taper', 'taup', 'travel time', 'trigger', 'VERCE', 'WAV',
+    'waveform', 'WaveServer', 'WaveServerV', 'WebDC', 'web service', 'Winston',
+    'XML-SEED', 'XSEED']
 
 INSTALL_REQUIRES = [
     'future>=0.12.4',
@@ -161,7 +161,8 @@ ENTRY_POINTS = {
         'SH_ASC = obspy.io.sh.core',
         'WAV = obspy.io.wav.core',
         'AH = obspy.io.ah.core',
-        'KNET = obspy.io.nied.knet'
+        'KNET = obspy.io.nied.knet',
+        'REFTEK130 = obspy.io.reftek.core',
         ],
     'obspy.plugin.waveform.TSPAIR': [
         'isFormat = obspy.io.ascii.core:_is_tspair',
@@ -266,6 +267,10 @@ ENTRY_POINTS = {
     'obspy.plugin.waveform.KNET': [
         'isFormat = obspy.io.nied.knet:_is_knet_ascii',
         'readFormat = obspy.io.nied.knet:_read_knet_ascii',
+        ],
+    'obspy.plugin.waveform.REFTEK130': [
+        'isFormat = obspy.io.reftek.core:_is_reftek130',
+        'readFormat = obspy.io.reftek.core:_read_reftek130',
         ],
     'obspy.plugin.event': [
         'QUAKEML = obspy.io.quakeml.core',

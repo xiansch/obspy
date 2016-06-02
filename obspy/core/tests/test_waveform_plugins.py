@@ -166,6 +166,14 @@ class WaveformPluginsTestCase(unittest.TestCase):
                          '2011-09-06-1311-36S.A1032_001BH_Z_MSEED'),
             os.path.join('core', 'tests', 'data',
                          'IU_ULN_00_LH1_2015-07-18T02.mseed'),
+            # these files are not in /mseed because they hold the data to
+            # validate the read output of the reftek file
+            os.path.join('io', 'reftek', 'tests', 'data',
+                         '2015282_225051_0ae4c_1_1.msd'),
+            os.path.join('io', 'reftek', 'tests', 'data',
+                         '2015282_225051_0ae4c_1_2.msd'),
+            os.path.join('io', 'reftek', 'tests', 'data',
+                         '2015282_225051_0ae4c_1_3.msd'),
         ]
         formats_ep = _get_default_eps('obspy.plugin.waveform', 'isFormat')
         formats = list(formats_ep.values())

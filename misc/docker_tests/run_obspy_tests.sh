@@ -7,9 +7,15 @@ mkdir -p $LOG_DIR_BASE
 # Parse the additional args later passed to `obspy-runtests` in
 # the docker images.
 extra_args=""
-while getopts "e:" opt; do
+while getopts "t:e:" opt; do
     case "$opt" in
     e)  extra_args=', "'$OPTARG'"'
+        ;;
+    t)  TARGET=(${OPTARG//:/ })
+        REPO=${TARGET[0]}
+        SHA=${TARGET[1]}
+        TARGET=true
+        OBSPY_DOCKER_TEST_SOURCE_TREE="clone"
         ;;
     esac
 done
@@ -64,6 +70,14 @@ then
 elif [ "$OBSPY_DOCKER_TEST_SOURCE_TREE" == "clone" ]
 then
     git clone file://$OBSPY_PATH $NEW_OBSPY_PATH
+    if [ "$TARGET" = true ] ; then
+        git remote add TEMP git://github.com/$REPO/obspy
+        git fetch TEMP
+        git checkout $SHA
+        git remote remove TEMP
+        git clean -fdx
+        git status
+    fi
     # we're cloning so we have a non-dirty version actually
     cat $OBSPY_PATH/obspy/RELEASE-VERSION | sed 's#\.dirty$##' > $NEW_OBSPY_PATH/obspy/RELEASE-VERSION
 else
@@ -72,7 +86,6 @@ else
 fi
 FULL_VERSION=`cat $NEW_OBSPY_PATH/obspy/RELEASE-VERSION`
 COMMIT=`cd $OBSPY_PATH && git log -1 --pretty=format:%H`
-
 
 # Copy the install script.
 cp scripts/install_and_run_tests_on_image.sh $TEMP_PATH/install_and_run_tests_on_image.sh
